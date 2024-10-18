@@ -1,0 +1,22 @@
+{
+  "name": "danbooru-get",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/mime-types": "^2.1.4",
+    "axios": "^1.7.7",
+    "mime-types": "^2.1.35",
+    "puppeteer": "^23.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.6",
+    "@types/puppeteer": "^5.4.7",
+    "typescript": "^5.6.3"
+  }
+}
