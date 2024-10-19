@@ -97,7 +97,7 @@ async function main() {
     response.data.pipe(fs.createWriteStream(`${id}.${extension}`));
     console.log(`Saved image: ${id}.${extension}`);
 
-    fs.writeFileSync(`{$id}.txt`, data.tags.join(', '), 'utf8');
+    fs.writeFileSync(`${id}.txt`, data.tags.join(', '), 'utf8');
     console.log(`Saved image: ${id}.txt`);
 }
 
