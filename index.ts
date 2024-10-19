@@ -95,7 +95,7 @@ async function main() {
     console.log(`Saved image: ${id}.${extension}`);
 
     fs.writeFileSync(`${id}.txt`, data.tags.join(', '), 'utf8');
-    console.log(`Saved image: ${id}.txt`);
+    console.log(`Saved tags: ${id}.txt`);
 }
 
 // 実行
