@@ -44,9 +44,6 @@ class DanbooruGetter {
         try {
             await page.goto(url, { waitUntil: 'networkidle2' });
             await page.waitForSelector('img#image');
-            console.warn('page loaded: url =', page.url());
-            console.warn('page.title =', await page.title());
-
             // 画像URLとタグを取得
             return await page.evaluate(() => {
                 const image = document.querySelector<HTMLImageElement>('img#image');
