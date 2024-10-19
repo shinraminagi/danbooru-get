@@ -1,4 +1,5 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
+import { Mutex, MutexInterface } from 'async-mutex';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
@@ -10,10 +11,36 @@ interface ScrapedData {
     tags: string[];
 }
 
-async function scrapeImagePage(url: string): Promise<ScrapedData> {
-    const browser = await puppeteer.launch({ headless: false });
-    try {
-        const page = await browser.newPage();
+class DanbooruGetter {
+    private mutex = new Mutex();
+    private browser: Browser | null = null;
+
+    private async prepare() {
+        if (this.browser) return;
+        const release = await this.mutex.acquire();
+        try {
+            if (this.browser) return;
+            this.browser = await puppeteer.launch({ headless: false });
+        } finally {
+            release();
+        }
+    }
+
+    async [Symbol.asyncDispose]() {
+        const release = await this.mutex.acquire();
+        if (!this.browser) return;
+        try {
+            const b = this.browser;
+            this.browser = null;
+            await b.close();
+        } finally {
+            release();
+        }
+    }
+
+    async scrapeImagePage(url: string): Promise<ScrapedData> {
+        await this.prepare();
+        const page = await this.browser!.newPage();
         try {
             await page.goto(url, { waitUntil: 'networkidle2' });
             await page.waitForSelector('img#image');
@@ -43,14 +70,14 @@ async function scrapeImagePage(url: string): Promise<ScrapedData> {
         } finally {
             await page.close();
         }
-    } finally {
-        await browser.close();
     }
 }
 
+
 async function main() {
+    await using getter = new DanbooruGetter();
     const url = process.argv[2]
-    const data = await scrapeImagePage(url);
+    const data = await getter.scrapeImagePage(url);
     const id = path.basename(new URL(url).pathname);
 
     const response = await axios({
