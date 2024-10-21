@@ -38,6 +38,37 @@ class DanbooruGetter {
         }
     }
 
+    async* scrapeGalleryPage(url: string): AsyncGenerator<string> {
+        await this.prepare();
+        const page = await this.browser!.newPage();
+        try {
+            for (; ;) {
+                await page.goto(url, { waitUntil: 'networkidle2' });
+                await page.waitForSelector('div.post-gallery');
+
+                // 画像ページのURLを取得
+                const urls = await page.evaluate(() => {
+                    const urls = new Array<string>();
+                    document.querySelectorAll<HTMLAnchorElement>('div.post-gallery article.post-preview a.post-preview-link').forEach(a => {
+                        urls.push(a.href);
+                    });
+                    return urls;
+                });
+                for (const u of urls) {
+                    yield u;
+                }
+                const next = await page.evaluate(() => {
+                    const next = document.querySelector<HTMLAnchorElement>('div.post-gallery a.paginator-next');
+                    return next ? next.href : null;
+                });
+                if (!next) break;
+                url = next;
+            }
+        } finally {
+            await page.close();
+        }
+    }
+
     async scrapeImagePage(url: string): Promise<ScrapedData> {
         await this.prepare();
         const page = await this.browser!.newPage();
@@ -74,6 +105,16 @@ class DanbooruGetter {
 async function main() {
     await using getter = new DanbooruGetter();
     const url = process.argv[2]
+    if (url.match(/\/posts\/\d+/)) {
+        await saveImage(getter, url);
+    } else {
+        for await (const u of getter.scrapeGalleryPage(url)) {
+            await saveImage(getter, u);
+        }
+    }
+}
+
+async function saveImage(getter: DanbooruGetter, url: string) {
     const data = await getter.scrapeImagePage(url);
     const id = path.basename(new URL(url).pathname);
 

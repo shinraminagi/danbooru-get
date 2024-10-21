@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "start": "ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,7 +14,8 @@
     "async-mutex": "^0.5.0",
     "axios": "^1.7.7",
     "mime-types": "^2.1.35",
-    "puppeteer": "^23.6.0"
+    "puppeteer": "^23.6.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "^22.7.6",
