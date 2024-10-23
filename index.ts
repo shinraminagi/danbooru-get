@@ -86,7 +86,7 @@ class DanbooruGetter {
                 const tags = new Array<string>();
                 ['artist-tag-list', 'copyright-tag-list', 'character-tag-list', 'general-tag-list'].forEach(category => {
                     document.querySelectorAll<HTMLLIElement>(`section#tag-list ul.${category} > li`).forEach(li => {
-                        tags.push(li.getAttribute('data-tag-name')!);
+                        tags.push(li.getAttribute('data-tag-name')!.replace(/_/g, ' '));
                     });
                 });
 
