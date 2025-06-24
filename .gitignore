@@ -31,3 +31,6 @@ yarn-error.log*
 
 # Windows files
 Thumbs.db
+
+# Output files
+./dist

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import puppeteer, { Browser } from 'puppeteer';
 import { Mutex, MutexInterface } from 'async-mutex';
 import fs from 'fs';
