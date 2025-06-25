@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
-import puppeteer, { Browser } from 'puppeteer';
+import { chromium, Browser, BrowserContext } from 'playwright';
 import { Mutex, MutexInterface } from 'async-mutex';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import mime from 'mime-types';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
+import { dir } from 'tmp-promise';
+// Ensure tmp-promise cleans up temporary directories gracefully
+require('tmp').setGracefulCleanup();
 
 interface ScrapedData {
     imageUrl: string;
@@ -14,15 +19,23 @@ interface ScrapedData {
 }
 
 class DanbooruGetter {
+    private user_dir: string = ""
     private mutex = new Mutex();
-    private browser: Browser | null = null;
+    private browser: BrowserContext | null = null;
+
+    constructor(user_dir: string = "") {
+        this.user_dir = user_dir;
+    }
 
     private async prepare() {
         if (this.browser) return;
         const release = await this.mutex.acquire();
         try {
             if (this.browser) return;
-            this.browser = await puppeteer.launch({ headless: false });
+            if (!this.user_dir) {
+                this.user_dir = (await dir({ prefix: 'danbooru-get-', unsafeCleanup: true })).path;
+            }
+            this.browser = await chromium.launchPersistentContext(this.user_dir, { headless: false });
         } finally {
             release();
         }
@@ -30,8 +43,8 @@ class DanbooruGetter {
 
     async [Symbol.asyncDispose]() {
         const release = await this.mutex.acquire();
-        if (!this.browser) return;
         try {
+            if (!this.browser) return;
             const b = this.browser;
             this.browser = null;
             await b.close();
@@ -45,7 +58,7 @@ class DanbooruGetter {
         const page = await this.browser!.newPage();
         try {
             for (; ;) {
-                await page.goto(url, { waitUntil: 'networkidle2' });
+                await page.goto(url, { waitUntil: 'networkidle' });
                 await page.waitForSelector('div.post-gallery');
 
                 // 画像ページのURLを取得
@@ -75,7 +88,7 @@ class DanbooruGetter {
         await this.prepare();
         const page = await this.browser!.newPage();
         try {
-            await page.goto(url, { waitUntil: 'networkidle2' });
+            await page.goto(url, { waitUntil: 'networkidle' });
             await page.waitForSelector('img#image');
             // 画像URLとタグを取得
             return await page.evaluate(() => {
@@ -105,15 +118,28 @@ class DanbooruGetter {
 
 
 async function main() {
-    await using getter = new DanbooruGetter();
-    const url = process.argv[2]
-    if (url.match(/\/posts\/\d+/)) {
-        await saveImage(getter, url);
-    } else {
-        for await (const u of getter.scrapeGalleryPage(url)) {
-            await saveImage(getter, u);
-        }
-    }
+    const argv = await yargs(hideBin(process.argv))
+        .command('* <url>', 'the default command', {
+            "profile": {
+                alias: 'p',
+                type: 'string',
+                default: '',
+                description: 'Chromium user profile directory for persistent storage. If not specified, a temporary directory will be used.'
+            }
+        }, async (argv: { profile: string }) => {
+            await using getter = new DanbooruGetter(argv.profile);
+            const url = (argv as any)['url'];
+            if (url.match(/\/posts\/\d+/)) {
+                await saveImage(getter, url);
+            } else {
+                for await (const u of getter.scrapeGalleryPage(url)) {
+                    await saveImage(getter, u);
+                }
+            }
+        })
+        .help()
+        .alias('help', 'h')
+        .parse();
 }
 
 async function saveImage(getter: DanbooruGetter, url: string) {

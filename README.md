@@ -7,8 +7,7 @@ A TypeScript-based command-line tool for downloading images and tags from Danboo
 - Download individual images or entire galleries
 - Extract and save image tags (artist, copyright, character, general)
 - Automatic file naming based on post ID
-- Thread-safe browser management
-- Support for various image formats (jpg, png, webp, etc.)
+- Temporary or persistent browser profile support
 
 ## Installation
 
@@ -27,22 +26,19 @@ npm install -g .
 
 ## Usage
 
-### After Local Installation
-```bash
-# Single image
-npm start "https://danbooru.donmai.us/posts/12345"
-
-# Gallery page
-npm start "https://danbooru.donmai.us/posts?tags=some_tag"
-```
-
-### After Global Installation
 ```bash
 # Single image
 danbooru-get "https://danbooru.donmai.us/posts/12345"
 
 # Gallery page  
 danbooru-get "https://danbooru.donmai.us/posts?tags=some_tag"
+
+# With custom browser profile
+danbooru-get --profile /path/to/profile "https://danbooru.donmai.us/posts/12345"
+danbooru-get -p /path/to/profile "https://danbooru.donmai.us/posts/12345"
+
+# Show help
+danbooru-get --help
 ```
 
 ## Output
@@ -51,22 +47,22 @@ The tool creates two files for each downloaded image:
 - `{post-id}.{extension}` - The downloaded image file
 - `{post-id}.txt` - Comma-separated tags (underscores converted to spaces)
 
+## Command-line Options
+
+- `--profile, -p <path>`: Specify browser profile directory for persistent storage (optional)
+- `--help, -h`: Show usage information
+
 ## Requirements
 
 - Node.js (for running the application)
-- Chromium/Chrome browser (automatically managed by Puppeteer)
+- Chromium browser (automatically managed by Playwright)
 
-## How It Works
+## Notes
 
-1. Uses Puppeteer to automate a Chrome browser
-2. Navigates to Danbooru pages and extracts image URLs and tags
-3. Downloads images using Axios with streaming
-4. Saves tags as text files with proper formatting
-5. For gallery pages, automatically paginates through all results
-
-## Note
-
-The browser runs in visible mode (not headless) to avoid potential blocking by the website.
+- The browser runs in visible mode (not headless) to avoid potential blocking by the website
+- Profile directories allow persistent login sessions and settings across runs
+- Temporary profiles are automatically cleaned up when not specified
+- All browser resources are properly disposed of using modern async disposal patterns
 
 ## Author
 

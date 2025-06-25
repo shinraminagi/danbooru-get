@@ -15,15 +15,18 @@
   "description": "",
   "dependencies": {
     "@types/mime-types": "^2.1.4",
+    "@types/yargs": "^17.0.33",
     "async-mutex": "^0.5.0",
     "axios": "^1.7.7",
     "mime-types": "^2.1.35",
-    "puppeteer": "^23.6.0",
-    "ts-node": "^10.9.2"
+    "playwright": "^1.53.1",
+    "tmp": "^0.2.3",
+    "tmp-promise": "^3.0.3",
+    "ts-node": "^10.9.2",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.6",
-    "@types/puppeteer": "^5.4.7",
     "typescript": "^5.6.3"
   }
 }
