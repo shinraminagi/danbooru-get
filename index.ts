@@ -16,6 +16,7 @@ require('tmp').setGracefulCleanup();
 interface ScrapedData {
     imageUrl: string;
     tags: string[];
+    isVideo: boolean;
 }
 
 class DanbooruGetter {
@@ -89,13 +90,13 @@ class DanbooruGetter {
         const page = await this.browser!.newPage();
         try {
             await page.goto(url, { waitUntil: 'networkidle' });
-            await page.waitForSelector('img#image');
+            await page.waitForSelector('#image');
             // 画像URLとタグを取得
             return await page.evaluate(() => {
-                const image = document.querySelector<HTMLImageElement>('img#image');
+                const image = document.querySelector<HTMLImageElement>('#image');
                 const viewOriginal = document.querySelector<HTMLAnchorElement>('a.image-view-original-link');
                 if (viewOriginal) viewOriginal.click();
-                const img = document.querySelector<HTMLImageElement>('img#image');
+                const img = document.querySelector<HTMLImageElement>('#image');
                 if (!img) throw new Error("Can't find image.");
 
                 const tags = new Array<string>();
@@ -107,7 +108,8 @@ class DanbooruGetter {
 
                 return {
                     imageUrl: img.src,
-                    tags: tags
+                    tags: tags,
+                    isVideo: img.tagName.toLowerCase() === 'video',
                 };
             });
         } finally {
@@ -144,6 +146,10 @@ async function main() {
 
 async function saveImage(getter: DanbooruGetter, url: string) {
     const data = await getter.scrapeImagePage(url);
+    if (data.isVideo) {
+        console.log(`Skipping video: ${url}`);
+        return;
+    }
     const id = path.basename(new URL(url).pathname);
 
     const response = await axios({
