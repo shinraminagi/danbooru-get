@@ -98,7 +98,9 @@ class DanbooruGetter {
                 if (viewOriginal) viewOriginal.click();
                 const img = document.querySelector<HTMLImageElement>('#image');
                 if (!img) throw new Error("Can't find image.");
-
+                if (img.tagName.toLowerCase() !== 'img' && img.tagName.toLowerCase() !== 'video') {
+                    throw new Error("Image is not an img or video element. (maybe, animated GIF?)");
+                }
                 const tags = new Array<string>();
                 ['artist-tag-list', 'copyright-tag-list', 'character-tag-list', 'general-tag-list'].forEach(category => {
                     document.querySelectorAll<HTMLLIElement>(`section#tag-list ul.${category} > li`).forEach(li => {
@@ -135,7 +137,11 @@ async function main() {
                 await saveImage(getter, url);
             } else {
                 for await (const u of getter.scrapeGalleryPage(url)) {
-                    await saveImage(getter, u);
+                    try {
+                        await saveImage(getter, u);
+                    } catch (e) {
+                        console.error(`Con't save image from ${u}: `, e);
+                    }
                 }
             }
         })
