@@ -15,13 +15,13 @@ A TypeScript-based command-line tool for downloading images and tags from Danboo
 ```bash
 git clone <repository-url>
 cd danbooru-get
-npm install
-npm run build
+pnpm install
+pnpm run build
 ```
 
 ### Global Installation
 ```bash
-npm install -g .
+pnpm add -g .
 ```
 
 ## Usage

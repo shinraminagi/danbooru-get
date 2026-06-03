@@ -4,7 +4,7 @@ import { chromium, Browser, BrowserContext } from 'playwright';
 import { Mutex, MutexInterface } from 'async-mutex';
 import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import mime from 'mime-types';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -163,7 +163,8 @@ async function saveImage(getter: DanbooruGetter, url: string) {
         method: 'GET',
         responseType: 'stream'
     });
-    const contentType = response.headers['content-type'];
+    const rawContentType = (response.headers as AxiosHeaders).getContentType();
+    const contentType = typeof rawContentType === 'string' ? rawContentType : undefined;
     if (!contentType) {
         throw new Error("Can't retrieve Content-Type");
     }

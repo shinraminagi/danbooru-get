@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a TypeScript-based web scraper for Danbooru (anime artwork site) that downloads images and their associated tags. The application uses Playwright for web scraping and can handle both individual image pages and gallery pages. It's configured as an npm package with a command-line interface using yargs for argument parsing.
+This is a TypeScript-based web scraper for Danbooru (anime artwork site) that downloads images and their associated tags. The application uses Playwright for web scraping and can handle both individual image pages and gallery pages. It's configured as a pnpm-managed package with a command-line interface using yargs for argument parsing.
 
 ## Core Architecture
 
@@ -24,27 +24,27 @@ This is a TypeScript-based web scraper for Danbooru (anime artwork site) that do
 
 ### Build and Run
 ```bash
-npm run build                    # Compile TypeScript to ./dist/
-npm start <url>                  # Run compiled version with URL argument
-npm start -- --profile /path/to/profile <url>  # Use specific browser profile
+pnpm run build                    # Compile TypeScript to ./dist/
+pnpm start <url>                  # Run compiled version with URL argument
+pnpm start -- --profile /path/to/profile <url>  # Use specific browser profile
 ```
 
 ### Package Installation
 ```bash
-npm install -g .                 # Install globally as 'danbooru-get' command
+pnpm add -g .                    # Install globally as 'danbooru-get' command
 danbooru-get <url>              # Run from anywhere after global install
 danbooru-get --profile /path/to/profile <url>  # Use specific browser profile
 ```
 
 ### Development
 ```bash
-npx ts-node index.ts <url>      # Run directly with ts-node (if needed)
+pnpm exec ts-node index.ts <url>      # Run directly with ts-node (if needed)
 ```
 
 ### Usage Patterns
-- Single image: `npm start https://danbooru.donmai.us/posts/12345`
-- Gallery page: `npm start "https://danbooru.donmai.us/posts?tags=some_tag"`
-- With custom profile: `npm start -- --profile /path/to/profile <url>`
+- Single image: `pnpm start https://danbooru.donmai.us/posts/12345`
+- Gallery page: `pnpm start "https://danbooru.donmai.us/posts?tags=some_tag"`
+- With custom profile: `pnpm start -- --profile /path/to/profile <url>`
 - After global install: `danbooru-get <url>`
 - Global with profile: `danbooru-get -p /path/to/profile <url>`
 
