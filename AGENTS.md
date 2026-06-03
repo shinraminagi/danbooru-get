@@ -23,6 +23,7 @@ This is a TypeScript-based web scraper for Danbooru (anime artwork site) that do
 ## Common Commands
 
 ### Build and Run
+
 ```bash
 pnpm run build                    # Compile TypeScript to ./dist/
 pnpm start <url>                  # Run compiled version with URL argument
@@ -30,6 +31,7 @@ pnpm start -- --profile /path/to/profile <url>  # Use specific browser profile
 ```
 
 ### Package Installation
+
 ```bash
 pnpm add -g .                    # Install globally as 'danbooru-get' command
 danbooru-get <url>              # Run from anywhere after global install
@@ -37,11 +39,13 @@ danbooru-get --profile /path/to/profile <url>  # Use specific browser profile
 ```
 
 ### Development
+
 ```bash
 pnpm exec ts-node index.ts <url>      # Run directly with ts-node (if needed)
 ```
 
 ### Usage Patterns
+
 - Single image: `pnpm start https://danbooru.donmai.us/posts/12345`
 - Gallery page: `pnpm start "https://danbooru.donmai.us/posts?tags=some_tag"`
 - With custom profile: `pnpm start -- --profile /path/to/profile <url>`
@@ -49,6 +53,7 @@ pnpm exec ts-node index.ts <url>      # Run directly with ts-node (if needed)
 - Global with profile: `danbooru-get -p /path/to/profile <url>`
 
 ### Command-line Options
+
 - `--profile, -p`: Specify browser profile directory path for persistent storage
 - `--help, -h`: Show usage information
 
@@ -63,7 +68,7 @@ pnpm exec ts-node index.ts <url>      # Run directly with ts-node (if needed)
 
 - **Playwright**: Web scraping with Chromium browser automation (runs visible browser with persistent context)
 - **yargs**: Command-line argument parsing with help generation
-- **Axios**: HTTP requests for image downloads with stream support
+- **Fetch API**: Built-in HTTP requests for image downloads with stream support
 - **async-mutex**: Thread-safe browser context management
 - **mime-types**: File extension detection from Content-Type headers
 - **tmp-promise**: Temporary directory management for default profiles

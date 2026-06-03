@@ -4,7 +4,9 @@ import { chromium, Browser, BrowserContext } from 'playwright';
 import { Mutex, MutexInterface } from 'async-mutex';
 import fs from 'fs';
 import path from 'path';
-import axios, { AxiosHeaders } from 'axios';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
+import type { ReadableStream as WebReadableStream } from 'stream/web';
 import mime from 'mime-types';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -158,13 +160,13 @@ async function saveImage(getter: DanbooruGetter, url: string) {
     }
     const id = path.basename(new URL(url).pathname);
 
-    const response = await axios({
-        url: data.imageUrl,
-        method: 'GET',
-        responseType: 'stream'
-    });
-    const rawContentType = (response.headers as AxiosHeaders).getContentType();
-    const contentType = typeof rawContentType === 'string' ? rawContentType : undefined;
+    const response = await fetch(data.imageUrl);
+    if (!response.ok) {
+        throw new Error(`Failed to download image: HTTP ${response.status}`);
+    }
+
+    const contentTypeHeader = response.headers.get('content-type');
+    const contentType = contentTypeHeader?.split(';')[0]?.trim();
     if (!contentType) {
         throw new Error("Can't retrieve Content-Type");
     }
@@ -173,7 +175,14 @@ async function saveImage(getter: DanbooruGetter, url: string) {
     if (!extension) {
         throw new Error(`Unknown Content-Type: ${contentType}`);
     }
-    response.data.pipe(fs.createWriteStream(`${id}.${extension}`));
+    if (!response.body) {
+        throw new Error("Can't retrieve response body");
+    }
+
+    await pipeline(
+        Readable.fromWeb(response.body as WebReadableStream),
+        fs.createWriteStream(`${id}.${extension}`)
+    );
     console.log(`Saved image: ${id}.${extension}`);
 
     fs.writeFileSync(`${id}.txt`, data.tags.join(', '), 'utf8');
